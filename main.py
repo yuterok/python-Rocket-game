@@ -54,6 +54,7 @@ def game_start_pack():
     asteroids_list.add(asteroid1,asteroid2,asteroid3,asteroid4,asteroid5)
                         
     h = open('high_score.txt','r')
+    global high_score
     high_score = h.read()
     h.close()
 
@@ -113,13 +114,16 @@ while run:
 
     if game_menu:
         theme = pygame_menu.Theme()
+        menu_font = pygame.font.Font('Baloo.ttf', 52)
 
         theme.title_bar_style = pygame_menu.widgets.MENUBAR_STYLE_NONE
-        theme.title_close_button_cursor = pygame_menu.locals.CURSOR_HAND
-        theme.title_floating = True
-        theme.widget_selection_effect = pygame_menu.widgets.HighlightSelection()
+        theme.title_close_button = False
+        theme.widget_selection_effect = pygame_menu.widgets.SimpleSelection()
         theme.background_color = pygame_menu.BaseImage('img/menu_bg.png')
-        start_button_img = pygame_menu.BaseImage('img/start.png')
+        theme.widget_cursor = pygame_menu.locals.CURSOR_HAND
+        theme.widget_font = menu_font
+        theme.widget_font_color = (251,246,121)
+        theme.selection_color = (255, 107, 107)
 
         menu = pygame_menu.Menu(
             height=SCREEN_HEIGHT,
@@ -130,21 +134,18 @@ while run:
             center_content=False,
             mouse_motion_selection=True)
 
-        menu_selection_effect=pygame_menu.widgets.SimpleSelection()
-        menu_font = pygame.font.Font('Baloo.ttf', 52)
-
         def start_game():
             menu.disable()
             print('Game started')
             game_start_pack()
             
 
-        b1 = menu.add.button('Начать игру', start_game, font_name=menu_font, font_color = (251,246,121), selection_color = (255, 107, 107), selection_effect = menu_selection_effect, cursor=pygame_menu.locals.CURSOR_HAND)
-        b1.translate(10, 260)
-        b2 = menu.add.button('Настройки', font_name=menu_font, font_color = (251,246,121),selection_color = (255, 107, 107),selection_effect = menu_selection_effect, cursor=pygame_menu.locals.CURSOR_HAND)
-        b2.translate(10, 290)
-        b3 = menu.add.button('Выход', pygame_menu.events.EXIT, font_name=menu_font, font_color = (251,246,121), selection_color = (255, 107, 107), selection_effect = menu_selection_effect,cursor=pygame_menu.locals.CURSOR_HAND)
-        b3.translate(10, 320)
+        b1 = menu.add.button('Начать игру', start_game)
+        b1.translate(10, 250)
+        b2 = menu.add.button('Настройки')
+        b2.translate(10, 280)
+        b3 = menu.add.button('Выход', pygame_menu.events.EXIT)
+        b3.translate(10, 310)
 
         menu.mainloop(window)
 

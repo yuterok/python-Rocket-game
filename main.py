@@ -46,11 +46,21 @@ def game_start_pack():
     time_score = 0
     global lifes
     lifes = 3
-    global asteroids_list, asteroids_x, asteroids_y, asteroids_speed
-    asteroids_x = [100, 450, 200, 900, 200]
-    asteroids_y = [-100, 100, 400, 400, 700]
-    asteroids_speed = 10
+    global asteroids_list
+    global asteroids_x
+    global asteroids_y
+    global asteroids_speed
+    asteroids_list = pygame.sprite.Group()
     asteroids_list.empty()
+    asteroids_list.clear(window, bg)
+    asteroids_x = [100, 450, 200, 900, 200]
+    asteroids_y = [-100, -200, -300, -500, -700]
+    asteroids_speed = 10
+    asteroid1 = Asteroid(asteroids_x[0], asteroids_y[0], 'img/asteroid1.png')
+    asteroid2 = Asteroid(asteroids_x[1], asteroids_y[1], 'img/asteroid2.png')
+    asteroid3 = Asteroid(asteroids_x[2], asteroids_y[2], 'img/asteroid3.png')
+    asteroid4 = Asteroid(asteroids_x[3], asteroids_y[3], 'img/asteroid4.png')
+    asteroid5 = Asteroid(asteroids_x[4], asteroids_y[4], 'img/asteroid5.png')
     asteroids_list.add(asteroid1,asteroid2,asteroid3,asteroid4,asteroid5)
                         
     h = open('high_score.txt','r')
@@ -69,11 +79,6 @@ class Rocket(pygame.sprite.Sprite):
         self.rect.x = rocket_x
         self.rect.y = rocket_y
 
-asteroids_speed = 10
-asteroids_x = [100, 450, 200, 900, 200]
-asteroids_y = [-100, 100, 400, 400, 700]
-asteroids_list = pygame.sprite.Group()
-
 class Asteroid(pygame.sprite.Sprite):
     def __init__(self, x, y, filename):
         pygame.sprite.Sprite.__init__(self)
@@ -84,15 +89,8 @@ class Asteroid(pygame.sprite.Sprite):
     def update(self, asteroids_speed):
         self.rect.y += asteroids_speed
         if self.rect.y > SCREEN_HEIGHT+10:
-           self.rect.y = random.randint(-200,-50)
+           self.rect.y = random.randint(-200,-70)
            self.rect.x = random.randint(0,SCREEN_WIDTH)
-
-asteroid1 = Asteroid(asteroids_x[0], asteroids_y[0], 'img/asteroid1.png')
-asteroid2 = Asteroid(asteroids_x[1], asteroids_y[1], 'img/asteroid2.png')
-asteroid3 = Asteroid(asteroids_x[2], asteroids_y[2], 'img/asteroid3.png')
-asteroid4 = Asteroid(asteroids_x[3], asteroids_y[3], 'img/asteroid4.png')
-asteroid5 = Asteroid(asteroids_x[4], asteroids_y[4], 'img/asteroid5.png')
-asteroids_list.add(asteroid1,asteroid2,asteroid3,asteroid4,asteroid5)
 
 def drawGame():
 
@@ -134,15 +132,50 @@ while run:
             center_content=False,
             mouse_motion_selection=True)
 
+        settings_menu = pygame_menu.Menu(
+            height=SCREEN_HEIGHT,
+            theme=theme,
+            title='',
+            width=SCREEN_WIDTH)
+        
+        def yellow():
+            global color
+            color = 'img/yellow.png'
+
+        def pink():
+            global color
+            color = 'img/pink.png'
+
+        def green():
+            global color
+            color = 'img/green.png'
+        
+        def null_score():
+            h = open('high_score.txt','w')
+            h.write(str(0))
+            h.close()
+        s_1 = settings_menu.add.label('Выбрать цвет')
+        s_1.translate(0, 100)
+        color_1 = settings_menu.add.button('', yellow, background_color = (251,191,63), padding=(10,50), selection_color=(255,255,255), selection_effect=pygame_menu.widgets.HighlightSelection(border_width=6))
+        color_1.translate(-200, 130)
+        color_2 = settings_menu.add.button('', pink, background_color = (220, 161, 200), padding=(10,50), selection_color=(255,255,255),selection_effect=pygame_menu.widgets.HighlightSelection(border_width=6))
+        color_2.translate(0, 30)
+        color_3 = settings_menu.add.button('', green, background_color = (120, 194, 169), padding=(10,50), selection_color=(255,255,255),selection_effect=pygame_menu.widgets.HighlightSelection(border_width=6))
+        color_3.translate(200, -70)
+
+        s_2 = settings_menu.add.button('Сбросить рекорд', null_score)
+        s_2.translate(0,-30)
+
+        s_2 = settings_menu.add.button('Назад', pygame_menu.events.BACK)
+
         def start_game():
             menu.disable()
             print('Game started')
             game_start_pack()
             
-
         b1 = menu.add.button('Начать игру', start_game)
         b1.translate(10, 250)
-        b2 = menu.add.button('Настройки')
+        b2 = menu.add.button('Настройки', settings_menu)
         b2.translate(10, 280)
         b3 = menu.add.button('Выход', pygame_menu.events.EXIT)
         b3.translate(10, 310)
@@ -178,7 +211,7 @@ while run:
         high_score_text = h_font.render(f'High score: {high_score}', True, (251,246,121))
         lifes_text = font.render(f'Lifes: {lifes}', True, (255, 107, 107))
         
-    # усложнение игры по мере прохождения
+# усложнение игры по мере прохождения
         if score == 300:
             asteroids_list.add(Asteroid(random.randint(0,SCREEN_WIDTH), -50, 'img/asteroid1.png'))
         if score == 500:

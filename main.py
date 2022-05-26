@@ -2,12 +2,12 @@ import pygame, pygame_menu
 import random
 import time
 import os
-from constants import *
+from const_sprites import *
 
 pygame.init()
 
 game_menu = True
-game_start =False
+game_start = False
 game_over = False
 
 h = open('high_score.txt','r')
@@ -18,14 +18,9 @@ window = pygame.display.set_mode((SCREEN_WIDTH,SCREEN_HEIGHT))
 pygame.display.set_caption('Space Flyer')
 clock = pygame.time.Clock()
 
-bg = pygame.image.load('img/bg.png')
-game_over_bg = pygame.image.load('img/game_over_bg.png')
-menu_bg = pygame.image.load('img/menu_bg.png')
-
 font = pygame.font.Font('Baloo.ttf', 45)
 h_font = pygame.font.Font('Baloo.ttf', 25)
-explosion = pygame.image.load('img/explode.png')
-color = 'img/yellow.png'
+frame = 0
 
 def game_start_pack():
     global game_start
@@ -35,7 +30,7 @@ def game_start_pack():
     global game_menu
     game_menu = False
     global rocket_x
-    rocket_x = SCREEN_WIDTH/2
+    rocket_x = SCREEN_WIDTH/2-50
     global rocket_y
     rocket_y = 500
     global collide_x
@@ -95,7 +90,12 @@ class Asteroid(pygame.sprite.Sprite):
 def drawGame():
 
     window.blit(bg, (0,0))
+    window.blit(anim[frame], (rocket_x,rocket_y))
     window.blit(rocket.image, (rocket_x,rocket_y))
+    if lifes == 2:
+            window.blit(crack1,(rocket_x,rocket_y))    
+    if lifes == 1:
+            window.blit(crack2,(rocket_x,rocket_y))    
     asteroids_list.draw(window)
     window.blit(score_text, (20,10))
     window.blit(high_score_text, (20,70))
@@ -154,8 +154,10 @@ while run:
             h = open('high_score.txt','w')
             h.write(str(0))
             h.close()
+
         s_1 = settings_menu.add.label('Выбрать цвет')
         s_1.translate(0, 100)
+
         color_1 = settings_menu.add.button('', yellow, background_color = (251,191,63), padding=(10,50), selection_color=(255,255,255), selection_effect=pygame_menu.widgets.HighlightSelection(border_width=6))
         color_1.translate(-200, 130)
         color_2 = settings_menu.add.button('', pink, background_color = (220, 161, 200), padding=(10,50), selection_color=(255,255,255),selection_effect=pygame_menu.widgets.HighlightSelection(border_width=6))
@@ -166,7 +168,7 @@ while run:
         s_2 = settings_menu.add.button('Сбросить рекорд', null_score)
         s_2.translate(0,-30)
 
-        s_2 = settings_menu.add.button('Назад', pygame_menu.events.BACK)
+        settings_menu.add.button('Назад', pygame_menu.events.BACK)
 
         def start_game():
             menu.disable()
@@ -184,13 +186,13 @@ while run:
 
     if game_start:
 
+        frame = (frame + 1) % 6
         rocket = Rocket(rocket_x, rocket_y, color)
         speed = 20
-
         keys = pygame.key.get_pressed()
-        if (keys[pygame.K_LEFT] or keys[pygame.K_a]) and rocket_x > 0:
+        if (keys[pygame.K_LEFT] or keys[pygame.K_a]) and rocket_x > 10:
             rocket_x -= speed
-        if (keys[pygame.K_RIGHT] or keys[pygame.K_d]) and rocket_x < SCREEN_WIDTH-ROCKET_WIDTH:
+        if (keys[pygame.K_RIGHT] or keys[pygame.K_d]) and rocket_x < SCREEN_WIDTH-ROCKET_WIDTH-10:
             rocket_x += speed
         if (keys[pygame.K_UP] or keys[pygame.K_w]) and rocket.rect.y>10:
             rocket_y -= speed
@@ -230,16 +232,7 @@ while run:
         for asteroid in asteroid_hit_list:
             lifes -=1
             asteroid.rect.y = SCREEN_HEIGHT+100
-        
-        crack1 = pygame.image.load('img/crack1.png')
-        crack2 = pygame.image.load('img/crack2.png')
             
-        if lifes == 2:
-            rocket.image.blit(crack1,(0,0))
-        
-        if lifes == 1:
-            rocket.image.blit(crack2,(0,0))
-
         if lifes == 0:
             game_over = True
             game_start = False
